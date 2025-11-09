@@ -567,7 +567,7 @@ async function submitForm(data) {
     submitBtn.disabled = true;
 
     // Use the FIXED PHP file
-    const response = await fetch("../src/php/register_user_fixed.php", {
+    const response = await fetch("../src/php/register_user.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
