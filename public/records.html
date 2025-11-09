@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registered Stakeholders | RSU RFID Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Print-specific styles */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printContainer, #printContainer * {
+        visibility: visible;
+      }
+      #printContainer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .id-card {
+        page-break-after: always;
+        margin: 20px auto;
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .btn-renew, .btn-edit, .btn-print {
+      padding: 4px 8px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-renew {
+      background: #d97706;
+      color: white;
+    }
+
+    .btn-renew:hover:not(:disabled) {
+      background: #b45309;
+    }
+
+    .btn-edit {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-print {
+      background: #059669;
+      color: white;
+    }
+
+    .btn-print:hover {
+      background: #047857;
+    }
+
+    .btn-renew:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .validity-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      color: #fff;
+      font-size: 11px;
+    }
+
+    .valid-badge {
+      background: #16a34a;
+    }
+
+    .expired-badge {
+      background: #dc2626;
+    }
+
+    .no-photo {
+      color: #64748b;
+      font-style: italic;
+    }
+
+    /* Preview Modal Styles */
+    .preview-container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+
+    .preview-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="page-header">
+    <div class="container" style="position: relative;">
+      <button class="btn btn-secondary" onclick="goBack()" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%);">
+        <i class="fas fa-arrow-left"></i>
+        Back to Home
+      </button>
+      <h1>Registered Stakeholders</h1>
+      <p>Manage and view all registered RFID users</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <div class="controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px;">
+        <div class="input-icon" style="flex: 1;">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" class="form-control" placeholder="Search by name, role, or RFID..." onkeyup="searchRecords()">
+        </div>
+        <button id="exportCsvBtn" class="btn btn-accent">
+          <i class="fas fa-download"></i> Export CSV
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table" id="recordsTable">
+          <thead>
+            <tr>
+              <th>RFID</th>
+              <th>Full Name</th>
+              <th>Role</th>
+              <th>Department</th>
+              <th>Course / Position</th>
+              <th>Date Registered</th>
+              <th>Status</th>
+              <th>Photo</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data will load here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Print Container (Hidden until printing) -->
+  <div id="printContainer" style="display: none;"></div>
+
+  <!-- Preview Modal -->
+  <div id="previewModal" class="modal" aria-hidden="true">
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3 class="modal-title">ID Card Preview</h3>
+        <button class="modal-close" id="closePreviewModal">&times;</button>
+      </div>
+      <div class="preview-container" id="idPreviewContainer">
+        <!-- Preview content will be inserted here -->
+      </div>
+      <div class="preview-actions">
+        <button class="btn btn-secondary" id="closePreviewBtn">Close</button>
+        <button class="btn btn-primary" id="printPreviewBtn">
+          <i class="fas fa-print"></i> Print ID
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Renew Validity Modal -->
+  <div id="renewModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Renew ID Validity</h3>
+        <button class="modal-close" onclick="closeRenewModal()" aria-label="Close renew modal">&times;</button>
+      </div>
+      <div id="renewMessage"></div>
+      <p>Are you sure you want to renew the validity for <strong id="renewUserName"></strong>?</p>
+      <p><strong>RFID:</strong> <span id="renewRfid"></span></p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeRenewModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmRenew()">Renew Validity</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Stakeholder Modal -->
+  <div id="editModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Stakeholder</h3>
+        <button class="modal-close" onclick="closeEditModal()" aria-label="Close edit modal">&times;</button>
+      </div>
+      <div id="editMessage"></div>
+      <form id="editForm">
+        <input type="hidden" id="editRfid">
+        
+        <div class="form-group">
+          <label for="editFirstName" class="form-label">First Name</label>
+          <input type="text" id="editFirstName" class="form-control" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editMiddleInitial" class="form-label">Middle Initial</label>
+          <input type="text" id="editMiddleInitial" class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <label for="editLastName" class="form-label">Last Name</label>
+          <input type="text" id="editLastName" class="form-control" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editRole" class="form-label">Role</label>
+          <select id="editRole" class="form-control" required>
+            <option value="">Select Role</option>
+            <option value="student">Student</option>
+            <option value="faculty">Faculty</option>
+            <option value="employee">Employee</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="editDepartment" class="form-label">Department</label>
+          <input type="text" id="editDepartment" class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <label for="editCoursePosition" class="form-label">Course / Position</label>
+          <input type="text" id="editCoursePosition" class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <label for="editContactNumber" class="form-label">Contact Number</label>
+          <input type="text" id="editContactNumber" class="form-control">
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Stakeholder</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    © 2025 Romblon State University | RFID Registration System
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      let allRecords = [];
+      let currentRenewRfid = '';
+      let currentPreviewRfid = '';
+
+      // Load template files
+      async function loadTemplates() {
+        try {
+          const [frontResponse, backResponse] = await Promise.all([
+            fetch('frontID.html'),
+            fetch('backID.html')
+          ]);
+          
+          if (frontResponse.ok && backResponse.ok) {
+            const frontHTML = await frontResponse.text();
+            const backHTML = await backResponse.text();
+            
+            // Store templates for later use
+            window.idTemplates = {
+              front: frontHTML,
+              back: backHTML
+            };
+          } else {
+            console.warn('Could not load template files, using fallback templates');
+            window.idTemplates = {
+              front: getFallbackFrontTemplate(),
+              back: getFallbackBackTemplate()
+            };
+          }
+        } catch (error) {
+          console.warn('Error loading templates:', error);
+          window.idTemplates = {
+            front: getFallbackFrontTemplate(),
+            back: getFallbackBackTemplate()
+          };
+        }
+      }
+
+      async function loadRecords() {
+        try {
+          const tbody = document.querySelector("#recordsTable tbody");
+          tbody.innerHTML = '<tr><td colspan="9" class="loading">Loading records...</td></tr>';
+
+          const response = await fetch("../src/php/get_stakeholders.php");
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          allRecords = data;
+          renderRecords(allRecords);
+
+        } catch (err) {
+          console.error("Error loading records:", err);
+          const tbody = document.querySelector("#recordsTable tbody");
+          tbody.innerHTML = `<tr><td colspan="9" class="error">Error loading records: ${err.message}</td></tr>`;
+        }
+      }
+
+      function renderRecords(records) {
+        const tbody = document.querySelector("#recordsTable tbody");
+        tbody.innerHTML = "";
+
+        if (!records || records.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:40px;">No registered stakeholders found.</td></tr>`;
+          return;
+        }
+
+        records.forEach(d => {
+          const fullName = `${d.first_name || ''} ${d.middle_initial ? d.middle_initial + '.' : ''} ${d.last_name || ''}`.trim();
+          const createdDate = d.created_at ? d.created_at.split(' ')[0] : '-';
+          
+          // Calculate status based on registration date (1 year validity)
+          let status = 'Active';
+          let statusClass = 'valid-badge';
+          let isExpired = false;
+          
+          if (d.created_at) {
+            const created = new Date(d.created_at);
+            const oneYearLater = new Date(created);
+            oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+            const today = new Date();
+            
+            if (today > oneYearLater) {
+              status = 'Expired';
+              statusClass = 'expired-badge';
+              isExpired = true;
+            }
+          }
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>${d.rfid || '-'}</strong></td>
+            <td>${fullName || 'Unknown'}</td>
+            <td>${d.role ? d.role.charAt(0).toUpperCase() + d.role.slice(1) : '-'}</td>
+            <td>${d.department || '-'}</td>
+            <td>${d.course_or_position || '-'}</td>
+            <td>${createdDate}</td>
+            <td><span class="validity-badge ${statusClass}">${status}</span></td>
+            <td class="${d.photo ? '' : 'no-photo'}">${d.photo ? '✅' : 'No photo'}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn-renew" ${!isExpired ? 'disabled' : ''} onclick="openRenewModal('${d.rfid}', '${fullName.replace(/'/g, "\\'")}')">
+                  Renew
+                </button>
+                <button class="btn-edit" onclick="openEditModal('${d.rfid}')">
+                  Edit
+                </button>
+                <button class="btn-print" onclick="previewAccount('${d.rfid}')">
+                  Print ID
+                </button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function searchRecords() {
+        const query = document.getElementById("searchInput").value.toLowerCase().trim();
+        
+        if (!query) {
+          renderRecords(allRecords);
+          return;
+        }
+
+        const filteredRecords = allRecords.filter(record => {
+          const searchableText = `
+            ${record.rfid || ''}
+            ${record.first_name || ''}
+            ${record.middle_initial || ''}
+            ${record.last_name || ''}
+            ${record.role || ''}
+            ${record.department || ''}
+            ${record.course_or_position || ''}
+          `.toLowerCase();
+
+          return searchableText.includes(query);
+        });
+
+        renderRecords(filteredRecords);
+      }
+
+      window.goBack = function() {
+        window.location.href = "index.html";
+      }
+
+      // Preview Account Function (shows modal first)
+      window.previewAccount = function(rfid) {
+        const stakeholder = allRecords.find(record => record.rfid === rfid);
+        if (!stakeholder) {
+          alert('Stakeholder not found');
+          return;
+        }
+
+        currentPreviewRfid = rfid;
+        generatePreview(stakeholder);
+        document.getElementById('previewModal').classList.add('active');
+      }
+
+      // Generate Preview in Modal
+      function generatePreview(stakeholder) {
+        const fullName = `${stakeholder.first_name || ''} ${stakeholder.middle_initial ? stakeholder.middle_initial + '.' : ''} ${stakeholder.last_name || ''}`.trim();
+        const previewContainer = document.getElementById('idPreviewContainer');
+        
+        // Replace placeholders in templates
+        const frontHTML = replaceTemplatePlaceholders(window.idTemplates.front, stakeholder, fullName);
+        const backHTML = replaceTemplatePlaceholders(window.idTemplates.back, stakeholder, fullName);
+        
+        previewContainer.innerHTML = `
+          <div style="text-align: center;">
+            <h4 style="margin-bottom: 15px; color: #003366;">Front Side</h4>
+            ${frontHTML}
+          </div>
+          <div style="text-align: center;">
+            <h4 style="margin-bottom: 15px; color: #003366;">Back Side</h4>
+            ${backHTML}
+          </div>
+        `;
+      }
+
+      // Replace template placeholders with actual data
+      function replaceTemplatePlaceholders(template, stakeholder, fullName) {
+        return template
+          .replace(/{{photo}}/g, stakeholder.photo || '')
+          .replace(/{{fullName}}/g, fullName)
+          .replace(/{{firstName}}/g, stakeholder.first_name || '')
+          .replace(/{{lastName}}/g, stakeholder.last_name || '')
+          .replace(/{{middleInitial}}/g, stakeholder.middle_initial || '')
+          .replace(/{{position}}/g, stakeholder.course_or_position || '')
+          .replace(/{{department}}/g, stakeholder.department || '')
+          .replace(/{{course}}/g, stakeholder.course_or_position || '')
+          .replace(/{{role}}/g, stakeholder.role || '')
+          .replace(/{{rfid}}/g, stakeholder.rfid || '')
+          .replace(/{{address}}/g, stakeholder.address || 'Not specified')
+          .replace(/{{contactNumber}}/g, stakeholder.contact_number || 'Not specified')
+          .replace(/{{birthdate}}/g, stakeholder.birthdate || 'Not specified')
+          .replace(/{{height}}/g, stakeholder.height || 'Not specified')
+          .replace(/{{weight}}/g, stakeholder.weight || 'Not specified')
+          .replace(/{{gender}}/g, stakeholder.gender || 'Not specified')
+          .replace(/{{civilStatus}}/g, stakeholder.civil_status || 'Not specified')
+          .replace(/{{emergencyContact}}/g, stakeholder.emergency_contact || 'Not specified')
+          .replace(/{{emergencyAddress}}/g, stakeholder.emergency_address || 'Not specified');
+      }
+
+      // Print from Preview
+      function printFromPreview() {
+        const stakeholder = allRecords.find(record => record.rfid === currentPreviewRfid);
+        if (!stakeholder) return;
+
+        const fullName = `${stakeholder.first_name || ''} ${stakeholder.middle_initial ? stakeholder.middle_initial + '.' : ''} ${stakeholder.last_name || ''}`.trim();
+        const printContainer = document.getElementById('printContainer');
+        
+        const frontHTML = replaceTemplatePlaceholders(window.idTemplates.front, stakeholder, fullName);
+        const backHTML = replaceTemplatePlaceholders(window.idTemplates.back, stakeholder, fullName);
+        
+        printContainer.innerHTML = frontHTML + backHTML;
+        printContainer.style.display = 'block';
+        
+        // Close preview modal
+        closePreviewModal();
+        
+        // Wait a bit for the template to render, then print
+        setTimeout(() => {
+          window.print();
+        }, 500);
+      }
+
+      // Close Preview Modal
+      function closePreviewModal() {
+        document.getElementById('previewModal').classList.remove('active');
+        currentPreviewRfid = '';
+      }
+
+      // Hide print container after printing
+      window.addEventListener('afterprint', function() {
+        document.getElementById('printContainer').style.display = 'none';
+        document.getElementById('printContainer').innerHTML = '';
+      });
+
+      // Event listeners for preview modal
+      document.getElementById('closePreviewModal').addEventListener('click', closePreviewModal);
+      document.getElementById('closePreviewBtn').addEventListener('click', closePreviewModal);
+      document.getElementById('printPreviewBtn').addEventListener('click', printFromPreview);
+
+      // Close modal when clicking outside
+      window.addEventListener('click', function(e) {
+        if (e.target === document.getElementById('previewModal')) {
+          closePreviewModal();
+        }
+        if (e.target === document.getElementById('renewModal')) {
+          closeRenewModal();
+        }
+        if (e.target === document.getElementById('editModal')) {
+          closeEditModal();
+        }
+      });
+
+      // Fallback templates in case template files don't load
+      function getFallbackFrontTemplate() {
+        return `
+          <div class="id-card">
+            <header class="id-header">
+              <h1>Republic of the Philippines</h1>
+              <h2>ROMBLON STATE UNIVERSITY</h2>
+              <h3>MAIN CAMPUS</h3>
+              <p>Odiongan, Romblon</p>
+              <h3>INSTITUTE OF INFORMATION TECHNOLOGY</h3>
+            </header>
+
+            <section class="id-body">
+              <div class="validity-badge">Valid Until 1st Semester 2025-2026</div>
+
+              <figure class="photo-placeholder">
+                <img id="photo" src="{{photo}}" alt="Student Photo">
+              </figure>
+
+              <div class="student-name">{{fullName}}</div>
+
+              <div class="signature-line">Student Signature</div>
+
+              <div class="course">{{course}}</div>
+            </section>
+
+            <div class="id-footer">Official University ID Card</div>
+          </div>
+        `;
+      }
+
+      function getFallbackBackTemplate() {
+        return `
+          <div class="id-card-back">
+            <div class="card-content">
+              <div class="info-section">
+                <div class="info-title">Personal Information</div>
+                <div class="info-item">
+                  <div class="info-label">Address:</div>
+                  <div class="info-value">{{address}}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Contact No.:</div>
+                  <div class="info-value">{{contactNumber}}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Birthdate:</div>
+                  <div class="info-value">{{birthdate}}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Height:</div>
+                  <div class="info-value">{{height}}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Weight:</div>
+                  <div class="info-value">{{weight}}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Gender:</div>
+                  <div class="info-value">{{gender}}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Civil Status:</div>
+                  <div class="info-value">{{civilStatus}}</div>
+                </div>
+              </div>
+
+              <div class="emergency-contact">
+                <div class="emergency-title">In case of emergency, please notify:</div>
+                <div class="info-item">
+                  <div class="info-label">Name</div>
+                  <div class="info-value">{{emergencyContact}}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Address</div>
+                  <div class="info-value">{{emergencyAddress}}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="notice">
+              This ID Card is non-transferable, if found please return to:<br>
+              The REGISTRAR, ROMBLON STATE UNIVERSITY, Odiongan, Romblon
+            </div>
+          </div>
+        `;
+      }
+
+      // Initialize templates and records
+      loadTemplates().then(() => {
+        loadRecords();
+      });
+
+      // Renew Validity Functions
+      window.openRenewModal = function(rfid, fullName) {
+        currentRenewRfid = rfid;
+        document.getElementById('renewUserName').textContent = fullName;
+        document.getElementById('renewRfid').textContent = rfid;
+        document.getElementById('renewMessage').innerHTML = '';
+        document.getElementById('renewModal').classList.add('active');
+      }
+
+      window.closeRenewModal = function() {
+        document.getElementById('renewModal').classList.remove('active');
+        currentRenewRfid = '';
+      }
+
+      window.confirmRenew = async function() {
+        try {
+          const response = await fetch('../src/php/renew_validity.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ rfid: currentRenewRfid })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            document.getElementById('renewMessage').innerHTML = 
+              `<div class="success-message">${result.message}</div>`;
+            setTimeout(() => {
+              closeRenewModal();
+              loadRecords();
+            }, 1000);
+          } else {
+            document.getElementById('renewMessage').innerHTML = 
+              `<div class="error-message">${result.message}</div>`;
+          }
+        } catch (error) {
+          document.getElementById('renewMessage').innerHTML = 
+            `<div class="error-message">Error: ${error.message}</div>`;
+        }
+      }
+
+      // Edit Stakeholder Functions
+      window.openEditModal = async function(rfid) {
+        try {
+          const stakeholder = allRecords.find(record => record.rfid === rfid);
+          if (!stakeholder) {
+            alert('Stakeholder not found');
+            return;
+          }
+
+          document.getElementById('editRfid').value = stakeholder.rfid;
+          document.getElementById('editFirstName').value = stakeholder.first_name || '';
+          document.getElementById('editMiddleInitial').value = stakeholder.middle_initial || '';
+          document.getElementById('editLastName').value = stakeholder.last_name || '';
+          document.getElementById('editRole').value = stakeholder.role || '';
+          document.getElementById('editDepartment').value = stakeholder.department || '';
+          document.getElementById('editCoursePosition').value = stakeholder.course_or_position || '';
+          document.getElementById('editContactNumber').value = stakeholder.contact_number || '';
+
+          document.getElementById('editMessage').innerHTML = '';
+          document.getElementById('editModal').classList.add('active');
+        } catch (error) {
+          alert('Error loading stakeholder data: ' + error.message);
+        }
+      }
+
+      window.closeEditModal = function() {
+        document.getElementById('editModal').classList.remove('active');
+        document.getElementById('editForm').reset();
+      }
+
+      document.getElementById('editForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = {
+          rfid: document.getElementById('editRfid').value,
+          first_name: document.getElementById('editFirstName').value,
+          middle_initial: document.getElementById('editMiddleInitial').value,
+          last_name: document.getElementById('editLastName').value,
+          role: document.getElementById('editRole').value,
+          department: document.getElementById('editDepartment').value,
+          course_or_position: document.getElementById('editCoursePosition').value,
+          contact_number: document.getElementById('editContactNumber').value
+        };
+
+        try {
+          const response = await fetch('../src/php/update_stakeholder.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            document.getElementById('editMessage').innerHTML = 
+              `<div class="success-message">${result.message}</div>`;
+            setTimeout(() => {
+              closeEditModal();
+              loadRecords();
+            }, 1000);
+          } else {
+            document.getElementById('editMessage').innerHTML = 
+              `<div class="error-message">${result.message}</div>`;
+          }
+        } catch (error) {
+          document.getElementById('editMessage').innerHTML = 
+            `<div class="error-message">Error: ${error.message}</div>`;
+        }
+      });
+
+      document.getElementById("exportCsvBtn").addEventListener("click", exportToCSV);
+    });
+
+    async function exportToCSV() {
+      // CSV export implementation would go here
+      alert('CSV export functionality would be implemented here');
+    }
+  </script>
+
+  <style>
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 25px;
+    }
+
+    .success-message {
+      background: rgba(22, 163, 74, 0.1);
+      color: #166534;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #bbf7d0;
+    }
+
+    .error-message {
+      background: rgba(220, 38, 38, 0.1);
+      color: #dc2626;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #fca5a5;
+    }
+
+    .loading, .error {
+      text-align: center;
+      padding: 40px;
+      color: #64748b;
+    }
+
+    .error {
+      color: #dc2626;
+    }
+  </style>
+</body>
+</html>

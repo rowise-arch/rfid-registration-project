@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RFID Monitor - RSU</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .monitor-container {
+      background: var(--white);
+      color: var(--text-dark);
+      width: 820px;
+      height: 480px;
+      border-radius: var(--radius);
+      display: flex;
+      overflow: hidden;
+      box-shadow: var(--hover-shadow);
+      position: relative;
+    }
+
+    .photo-area {
+      flex: 0 0 42%;
+      background: var(--gray-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #personPhoto {
+      width: 100%;
+      height: 100%;
+      max-width: 280px;
+      max-height: 280px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: var(--gray-border);
+      border: 3px solid var(--accent);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-area {
+      flex: 1;
+      padding: 40px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .rfid-code {
+      font-size: 18px;
+      color: var(--text-light);
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .user-name {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+      min-height: 38px;
+    }
+
+    .user-role {
+      font-size: 16px;
+      color: var(--text-light);
+      margin-bottom: 16px;
+      min-height: 22px;
+      font-weight: 500;
+    }
+
+    .info-grid {
+      font-size: 15px;
+      color: var(--text-dark);
+      line-height: 1.7;
+      margin-bottom: 30px;
+      min-height: 80px;
+    }
+
+    .info-grid div {
+      margin-bottom: 8px;
+    }
+
+    #validityBadge {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .valid { background: var(--success); }
+    .expired { background: var(--error); }
+    .notfound { background: var(--warning); }
+
+    #validityDate {
+      font-size: 14px;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    .bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--gray-light);
+      border-top: 1px solid var(--gray-border);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-dark);
+      font-size: 14px;
+    }
+
+    .bottom-bar button {
+      margin-left: 10px;
+    }
+
+    #clockDisplay {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--primary);
+      background: var(--white);
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--gray-border);
+    }
+
+    #rfid-capture {
+      opacity: 0;
+      position: absolute;
+      left: -9999px;
+    }
+
+    #monitorMsg {
+      font-weight: 500;
+      color: var(--text-light);
+    }
+
+    @media (max-width: 900px) {
+      .monitor-container {
+        width: 95%;
+        height: auto;
+        flex-direction: column;
+        max-width: 500px;
+      }
+      
+      .photo-area {
+        flex: none;
+        height: 200px;
+      }
+      
+      #personPhoto {
+        max-width: 150px;
+        max-height: 150px;
+      }
+      
+      .info-area {
+        padding: 30px;
+      }
+      
+      .user-name {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body class="flex-center" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 20px;">
+  <div class="monitor-container">
+    <!-- Left: Photo -->
+    <div class="photo-area">
+      <img id="personPhoto" src="" alt="User Photo" />
+    </div>
+
+    <!-- Right: Info -->
+    <div class="info-area">
+      <div id="validityBadge" class="notfound">—</div>
+
+      <div class="rfid-code" id="rfidCode">RFID: —</div>
+      <div class="user-name" id="personName">No user</div>
+      <div class="user-role" id="personRole">Role — —</div>
+
+      <div class="info-grid">
+        <div id="personDept">Department: —</div>
+        <div id="personCourse">Course/Position: —</div>
+        <div id="personContact">Contact: —</div>
+      </div>
+
+      <div id="validityDate">Valid until —</div>
+
+      <div class="bottom-bar">
+        <div id="monitorMsg">Waiting for RFID tap...</div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div id="clockDisplay">--:--:--</div>
+          <div>
+            <button id="focusReaderBtn" class="btn btn-primary">Focus Reader</button>
+            <button id="clearMonitorBtn" class="btn btn-secondary">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input id="rfid-capture" type="text" inputmode="numeric" autocomplete="off" />
+  <script src="../src/js/rfid_monitor.js"></script>
+
+  <script>
+    // Real-time Clock
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, "0");
+      const m = String(now.getMinutes()).padStart(2, "0");
+      const s = String(now.getSeconds()).padStart(2, "0");
+      const clockEl = document.getElementById("clockDisplay");
+      if (clockEl) clockEl.textContent = `${h}:${m}:${s}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Focus RFID reader
+    document.getElementById('focusReaderBtn').addEventListener('click', function() {
+      document.getElementById('rfid-capture').focus();
+    });
+
+    // Clear monitor
+    document.getElementById('clearMonitorBtn').addEventListener('click', function() {
+      document.getElementById('personPhoto').src = '';
+      document.getElementById('rfidCode').textContent = 'RFID: —';
+      document.getElementById('personName').textContent = 'No user';
+      document.getElementById('personRole').textContent = 'Role — —';
+      document.getElementById('personDept').textContent = 'Department: —';
+      document.getElementById('personCourse').textContent = 'Course/Position: —';
+      document.getElementById('personContact').textContent = 'Contact: —';
+      document.getElementById('validityDate').textContent = 'Valid until —';
+      document.getElementById('validityBadge').textContent = '—';
+      document.getElementById('validityBadge').className = 'notfound';
+      document.getElementById('monitorMsg').textContent = 'Waiting for RFID tap...';
+    });
+  </script>
+</body>
+</html>

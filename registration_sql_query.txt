@@ -1,0 +1,25 @@
+CREATE DATABASE stakeholders;
+
+USE stakeholders;
+
+CREATE TABLE stakeholders (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    rfid VARCHAR(255) NOT NULL UNIQUE,
+    role ENUM('student', 'employee', 'guest') NOT NULL,
+    photo LONGTEXT,
+    first_name VARCHAR(100) NOT NULL,
+    middle_initial VARCHAR(10),
+    last_name VARCHAR(100) NOT NULL,
+    department VARCHAR(100),
+    course_or_position VARCHAR(100),
+    address TEXT,
+    contact_number VARCHAR(20),
+    birthdate DATE,
+    height VARCHAR(10),
+    weight VARCHAR(10),
+    gender ENUM('Male', 'Female', 'Other'),
+    civil_status VARCHAR(20),
+    emergency_contact TEXT,
+    emergency_address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

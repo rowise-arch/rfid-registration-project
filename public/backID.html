@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Romblon State University - ID Card Back</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+
+        .id-card-back {
+            width: 350px;
+            height: 500px;
+            background: linear-gradient(to bottom, #003366, #004080);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .info-section {
+            margin-bottom: 25px;
+        }
+
+        .info-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-bottom: 1px solid #ffcc00;
+            padding-bottom: 5px;
+        }
+
+        .info-item {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            width: 120px;
+            font-weight: bold;
+        }
+
+        .info-value {
+            flex: 1;
+        }
+
+        .emergency-contact {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .emergency-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .signature-area {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .signature-line {
+            width: 200px;
+            border-bottom: 1px solid white;
+            margin: 0 auto 5px;
+            padding-bottom: 3px;
+        }
+
+        .signature-label {
+            font-size: 12px;
+        }
+
+        .registrar-name {
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .notice {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 10px;
+            padding: 0 20px;
+            color: #cccccc;
+        }
+
+        .id-back {
+            width: 100%;
+            padding: 10px;
+            border-top: 1px solid #ffcc00;
+        }
+
+        .personal-info {
+            margin-bottom: 15px;
+        }
+
+        .personal-info table {
+            width: 100%;
+            font-size: 14px;
+            color: white;
+        }
+
+        .personal-info td {
+            padding: 5px 0;
+        }
+
+        .emergency {
+            font-size: 14px;
+            color: white;
+        }
+
+        .emergency h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="id-card-back">
+        <div class="card-content">
+            <div class="info-section">
+                <div class="info-title">Personal Information</div>
+                <div class="info-item">
+                    <div class="info-label">Address:</div>
+                    <div class="info-value">{{address}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Contact No.:</div>
+                    <div class="info-value">{{contactNumber}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Birthdate:</div>
+                    <div class="info-value">{{birthdate}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Height:</div>
+                    <div class="info-value">{{height}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Weight:</div>
+                    <div class="info-value">{{weight}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Gender:</div>
+                    <div class="info-value">{{gender}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Civil Status:</div>
+                    <div class="info-value">{{civilStatus}}</div>
+                </div>
+            </div>
+
+            <div class="emergency-contact">
+                <div class="emergency-title">In case of emergency, please notify:</div>
+                <div class="info-item">
+                    <div class="info-label">Name</div>
+                    <div class="info-value">{{emergencyContact}}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Address</div>
+                    <div class="info-value">{{emergencyAddress}}</div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="notice">
+            This ID Card is non-transferable, if found please return to:<br>
+            The REGISTRAR, ROMBLON STATE UNIVERSITY, Odiongan, Romblon
+        </div>
+    </div>
+</body>
+
+</html>

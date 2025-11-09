@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Data Migration - Keep Base64</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+        .progress {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: #007bff;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Simple Data Migration</h1>
+        <p>Migrate SQLite data to Firebase (keeping Base64 images)</p>
+        
+        <div class="step">
+            <h3>Step 1: Load SQLite Export</h3>
+            <input type="file" id="jsonFile" accept=".json">
+            <button onclick="loadJsonFile()" id="loadBtn">Load JSON File</button>
+        </div>
+
+        <div class="step" id="previewStep" style="display: none;">
+            <h3>Step 2: Data Preview</h3>
+            <div id="dataPreview"></div>
+        </div>
+
+        <div class="step" id="migrationStep" style="display: none;">
+            <h3>Step 3: Migrate Data</h3>
+            <button onclick="migrateData()" id="migrateBtn">Start Migration</button>
+            <button onclick="clearFirebaseData()" style="background: #dc3545;">Clear Firebase Data</button>
+            
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div id="progressText">0% (0/0)</div>
+        </div>
+
+        <div class="step">
+            <h3>Migration Log</h3>
+            <button onclick="clearLog()">Clear Log</button>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let stakeholdersData = [];
+        let migrationStats = {
+            total: 0,
+            success: 0,
+            errors: 0
+        };
+
+        // Safe logging function
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            if (!logDiv) {
+                console.log(`[${type}] ${message}`);
+                return;
+            }
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.style.color = type === 'error' ? '#dc3545' : 
+                                 type === 'success' ? '#28a745' : 
+                                 type === 'warning' ? '#ffc107' : '#17a2b8';
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // Load JSON file
+        function loadJsonFile() {
+            const fileInput = document.getElementById('jsonFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a JSON file');
+                return;
+            }
+
+            const loadBtn = document.getElementById('loadBtn');
+            loadBtn.disabled = true;
+            loadBtn.textContent = 'Loading...';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    stakeholdersData = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(stakeholdersData)) {
+                        throw new Error('JSON file should contain an array of records');
+                    }
+
+                    displayDataPreview();
+                    migrationStats.total = stakeholdersData.length;
+                    
+                    document.getElementById('previewStep').style.display = 'block';
+                    document.getElementById('migrationStep').style.display = 'block';
+                    
+                    log(`✅ Loaded ${stakeholdersData.length} records`, 'success');
+                    log(`📸 Found ${stakeholdersData.filter(r => r.photo && r.photo.startsWith('data:image')).length} records with Base64 photos`, 'info');
+                    
+                } catch (error) {
+                    log(`❌ Error parsing JSON: ${error.message}`, 'error');
+                } finally {
+                    loadBtn.disabled = false;
+                    loadBtn.textContent = 'Load JSON File';
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // Display data preview
+        function displayDataPreview() {
+            const previewDiv = document.getElementById('dataPreview');
+            const recordsWithPhotos = stakeholdersData.filter(record => 
+                record.photo && record.photo.startsWith('data:image')
+            ).length;
+
+            previewDiv.innerHTML = `
+                <p><strong>Records Found:</strong> ${stakeholdersData.length}</p>
+                <p><strong>Records with Base64 Photos:</strong> ${recordsWithPhotos}</p>
+                <p><strong>Sample Records:</strong></p>
+                <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                    ${stakeholdersData.slice(0, 3).map(record => `
+                        <div style="margin-bottom: 10px; padding: 5px; border-bottom: 1px solid #eee;">
+                            <strong>${record.rfid}</strong>: ${record.first_name} ${record.last_name} 
+                            (${record.photo ? '📷 Has Photo' : '❌ No Photo'})
+                        </div>
+                    `).join('')}
+                    ${stakeholdersData.length > 3 ? `<p>... and ${stakeholdersData.length - 3} more records</p>` : ''}
+                </div>
+            `;
+        }
+
+        // Update progress
+        function updateProgress(percentage, current, total) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            if (progressBar) progressBar.style.width = `${percentage}%`;
+            if (progressText) progressText.textContent = `${percentage.toFixed(1)}% (${current}/${total})`;
+        }
+
+        // Migrate data (keep Base64 images)
+        async function migrateData() {
+            if (stakeholdersData.length === 0) {
+                alert('No data to migrate');
+                return;
+            }
+
+            const migrateBtn = document.getElementById('migrateBtn');
+            migrateBtn.disabled = true;
+            
+            log('🚀 Starting migration (keeping Base64 images)...', 'info');
+
+            try {
+                const db = firebase.database();
+                
+                for (let i = 0; i < stakeholdersData.length; i++) {
+                    const record = stakeholdersData[i];
+                    
+                    try {
+                        // Keep the record exactly as-is, including Base64 photos
+                        const firebaseRecord = {
+                            ...record,
+                            created_at: record.created_at || firebase.database.ServerValue.TIMESTAMP,
+                            updated_at: firebase.database.ServerValue.TIMESTAMP
+                        };
+
+                        await db.ref('stakeholders').child(record.rfid).set(firebaseRecord);
+                        migrationStats.success++;
+                        log(`✅ Migrated: ${record.rfid} - ${record.first_name} ${record.last_name}`, 'success');
+                        
+                    } catch (error) {
+                        migrationStats.errors++;
+                        log(`❌ Failed: ${record.rfid} - ${error.message}`, 'error');
+                    }
+
+                    // Update progress
+                    const percentage = ((i + 1) / stakeholdersData.length) * 100;
+                    updateProgress(percentage, i + 1, stakeholdersData.length);
+                    
+                    // Small delay to avoid overwhelming Firebase
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                log(`🎉 Migration completed! Success: ${migrationStats.success}, Errors: ${migrationStats.errors}`, 'success');
+                migrateBtn.disabled = false;
+                
+            } catch (error) {
+                log(`💥 Migration failed: ${error.message}`, 'error');
+                migrateBtn.disabled = false;
+            }
+        }
+
+        // Clear Firebase data
+        async function clearFirebaseData() {
+            if (!confirm('⚠️ This will delete ALL data in Firebase. Are you sure?')) {
+                return;
+            }
+
+            try {
+                log('🗑️ Clearing Firebase data...', 'warning');
+                const db = firebase.database();
+                await db.ref('stakeholders').remove();
+                log('✅ Firebase data cleared', 'success');
+                
+                // Reset stats
+                migrationStats = { total: 0, success: 0, errors: 0 };
+                updateProgress(0, 0, 0);
+                
+            } catch (error) {
+                log(`❌ Error clearing data: ${error.message}`, 'error');
+            }
+        }
+
+        // Clear log
+        function clearLog() {
+            const logDiv = document.getElementById('log');
+            if (logDiv) logDiv.innerHTML = '';
+            log('Log cleared', 'info');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🔧 Migration tool ready - Load your JSON file to begin', 'info');
+        });
+    </script>
+</body>
+</html>

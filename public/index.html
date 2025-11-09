@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSU RFID ID Registration Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #003366;
+            --secondary: #004080;
+            --accent: #ffcc00;
+            --accent-dark: #e6b800;
+            --bg: #f8fafc;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --white: #ffffff;
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            width: 100%;
+            text-align: center;
+            padding: 40px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        header h2 {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .university-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .welcome-text {
+            color: var(--text-dark);
+            font-size: 1.25rem;
+            margin-bottom: 40px;
+            max-width: 600px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .roles, .main-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1000px;
+            transition: all 0.4s ease;
+        }
+
+        .role-card {
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 35px 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .role-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .role-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .role-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .role-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .role-card p {
+            font-size: 1rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        .hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            background: var(--white);
+            border-top: 1px solid #e2e8f0;
+            width: 100%;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 35px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            animation: modalFadeIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            margin-bottom: 25px;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px 16px;
+            margin: 10px 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .modal-content input:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2);
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--primary);
+            color: var(--white);
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+
+        .modal-content button:hover {
+            background: var(--secondary);
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            header h2 {
+                font-size: 1.1rem;
+            }
+            
+            .welcome-text {
+                font-size: 1.1rem;
+            }
+            
+            .roles, .main-options {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Romblon State University</h1>
+            <h2>RFID ID Registration Portal</h2>
+            <div class="university-subtitle">Main Campus • Odiongan, Romblon</div>
+        </div>
+    </header>
+
+    <main>
+        <p class="welcome-text">Welcome to the official RSU RFID ID Registration System. Please choose an action below to get started.</p>
+
+        <!-- Main options -->
+        <div class="main-options" id="mainOptions">
+            <div class="role-card" onclick="showRegistrationOptions()">
+                <div class="role-icon">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <h3>Register</h3>
+                <p>Proceed to RFID registration for students, faculty, or employees.</p>
+            </div>
+
+            <div class="role-card" onclick="openLoginModal()">
+                <div class="role-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3>View Records</h3>
+                <p>Admin access required to view and manage stakeholder records.</p>
+            </div>
+
+            <div class="role-card" onclick="goToRFIDMonitor()">
+                <div class="role-icon">
+                    <i class="fas fa-rss"></i>
+                </div>
+                <h3>RFID Monitor</h3>
+                <p>Tap an RFID card to display stakeholder information and ID validity.</p>
+            </div>
+        </div>
+
+        <!-- Role selection -->
+        <div class="roles hidden" id="roleOptions">
+            <div class="role-card" onclick="goToRegistration('student')">
+                <div class="role-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h3>Student</h3>
+                <p>Register for your official student ID card with RFID technology.</p>
+            </div>
+            <div class="role-card" onclick="goToRegistration('faculty')">
+                <div class="role-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h3>Faculty</h3>
+                <p>Faculty and teaching staff registration for RFID ID cards.</p>
+            </div>
+            <div class="role-card" onclick="goToRegistration('employee')">
+                <div class="role-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <h3>Employee</h3>
+                <p>Register as an RSU employee or staff member for RFID access.</p>
+            </div>
+            <div class="role-card" onclick="goBack()">
+                <div class="role-icon">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <h3>Back to Menu</h3>
+                <p>Return to the main menu options</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        © 2025 Romblon State University | Developed for RFID Registration System
+    </footer>
+
+    <!-- Admin Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeLoginModal()">&times;</button>
+            <h2>Admin Login</h2>
+            <input type="text" id="adminUser" placeholder="Username" required>
+            <input type="password" id="adminPass" placeholder="Password" required>
+            <button onclick="loginAdmin()">Login to Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        // Step navigation
+        function showRegistrationOptions() {
+            document.getElementById("mainOptions").classList.add("hidden");
+            setTimeout(() => {
+                document.getElementById("roleOptions").classList.remove("hidden");
+                document.getElementById("roleOptions").style.display = "grid";
+            }, 50);
+        }
+
+        function goBack() {
+            document.getElementById("roleOptions").classList.add("hidden");
+            setTimeout(() => {
+                document.getElementById("mainOptions").classList.remove("hidden");
+                document.getElementById("mainOptions").style.display = "grid";
+            }, 50);
+        }
+
+        function goToRegistration(role) {
+            window.location.href = `rfid_registration.html?role=${role}`;
+        }
+
+        // Modal Controls
+        function openLoginModal() {
+            document.getElementById("loginModal").style.display = "flex";
+        }
+
+        function closeLoginModal() {
+            document.getElementById("loginModal").style.display = "none";
+            document.getElementById("adminUser").value = "";
+            document.getElementById("adminPass").value = "";
+        }
+
+        window.onclick = function (e) {
+            if (e.target === document.getElementById("loginModal")) closeLoginModal();
+        };
+
+        // Simple Login Logic
+        function loginAdmin() {
+            const user = document.getElementById("adminUser").value.trim();
+            const pass = document.getElementById("adminPass").value.trim();
+
+            // Temporary local login
+            const validUser = "admin";
+            const validPass = "RSU2025Admin";
+
+            if (user === validUser && pass === validPass) {
+                alert("Login successful! Redirecting to records...");
+                window.location.href = "records.html";
+            } else {
+                alert("Invalid username or password. Please try again.");
+            }
+        }
+
+        function goToRFIDMonitor() {
+            window.location.href = "rfid_monitor.html";
+        }
+    </script>
+</body>
+</html>

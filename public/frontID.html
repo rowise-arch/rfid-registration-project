@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Romblon State University - ID Card</title>
+    <style>
+        :root{
+            --bg:#f0f0f0;
+            --card-top:#003366;
+            --card-mid:#004080;
+            --header:#00264d;
+            --accent:#ffcc00;
+            --text:#ffffff;
+            --muted:#cccccc;
+            --photo-bg:#e0e0e0;
+            --photo-border:#ffcc00;
+            --primary:#003366;
+            --card-width:350px;
+            --card-height:500px;
+            --radius:15px;
+        }
+
+        *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+
+        body{
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:var(--bg);
+            padding:20px;
+        }
+
+        .id-card{
+            width:var(--card-width);
+            height:var(--card-height);
+            background:linear-gradient(to bottom,var(--card-top),var(--card-mid));
+            border-radius:var(--radius);
+            color:var(--text);
+            position:relative;
+            box-shadow:0 10px 25px rgba(0,0,0,.3);
+            overflow:hidden;
+        }
+
+        .id-header{
+            background:var(--header);
+            padding:25px 16px 12px;
+            text-align:center;
+            border-bottom:2px solid var(--accent);
+        }
+
+        .id-header h1{font-size:14px;font-weight:700;letter-spacing:.4px;margin-bottom:4px}
+        .id-header h2{font-size:18px;margin:4px 0;font-weight:800}
+        .id-header h3{font-size:12px;margin:4px 0;font-weight:600}
+        .id-header p{font-size:12px;color:var(--text);opacity:.95;margin-top:4px}
+
+        .id-body{
+            padding:20px;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            text-align:center;
+        }
+
+        .validity{
+            background:var(--accent);
+            color:var(--primary);
+            padding:6px 14px;
+            border-radius:20px;
+            font-weight:700;
+            font-size:13px;
+            margin-bottom:16px;
+        }
+
+        .photo-placeholder{
+            width:120px;
+            height:120px;
+            background:var(--photo-bg);
+            border:3px solid var(--photo-border);
+            border-radius:4px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:var(--primary);
+            font-weight:700;
+            margin-bottom:16px;
+        }
+
+        .student-name{
+            font-size:16px;
+            font-weight:800;
+            text-transform:uppercase;
+            margin-bottom:8px;
+        }
+
+        .signature-line{
+            width:200px;
+            border-bottom:1px solid rgba(255,255,255,.9);
+            padding-bottom:4px;
+            margin:12px 0 6px;
+            font-size:12px;
+        }
+
+        .course{
+            margin-top:12px;
+            font-size:13px;
+            font-weight:700;
+        }
+
+        .id-footer{
+            position:absolute;
+            bottom:10px;
+            width:100%;
+            text-align:center;
+            font-size:10px;
+            color:var(--muted);
+        }
+
+        @media (max-width:380px){
+            .id-card{transform:scale(.95)}
+        }
+
+        .id-front{
+            width:var(--card-width);
+            height:var(--card-height);
+            background:linear-gradient(to bottom,var(--card-top),var(--card-mid));
+            border-radius:var(--radius);
+            color:var(--text);
+            position:relative;
+            box-shadow:0 10px 25px rgba(0,0,0,.3);
+            overflow:hidden;
+        }
+
+        .header{
+            background:var(--header);
+            padding:15px;
+            text-align:center;
+            border-bottom:2px solid var(--accent);
+        }
+
+        .logo{
+            width:50px;
+            height:auto;
+            margin-bottom:8px;
+        }
+
+        .photo-area{
+            width:120px;
+            height:120px;
+            background:var(--photo-bg);
+            border:3px solid var(--photo-border);
+            border-radius:4px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            margin:0 auto 16px;
+        }
+
+        .id-photo{
+            width:100%;
+            height:100%;
+            border-radius:4px;
+            object-fit:cover;
+        }
+
+        .details{
+            text-align:center;
+            padding:0 10px;
+        }
+
+        .details h2{
+            font-size:16px;
+            font-weight:800;
+            text-transform:uppercase;
+            margin-bottom:8px;
+        }
+
+        .role{
+            font-size:14px;
+            font-weight:700;
+            margin:4px 0;
+        }
+
+        .dept,.idno{
+            font-size:12px;
+            color:var(--muted);
+            margin:2px 0;
+        }
+    </style>
+</head>
+<body>
+    <main class="id-card" role="region" aria-label="University ID Card">
+        <header class="id-header">
+            <h1>Republic of the Philippines</h1>
+            <h2>ROMBLON STATE UNIVERSITY</h2>
+            <h3>MAIN CAMPUS</h3>
+            <p>Odiongan, Romblon</p>
+            <h3 id="departmentHeader">INSTITUTE OF INFORMATION TECHNOLOGY</h3>
+        </header>
+
+    <section class="id-body">
+    <div class="validity">Valid Until 1st Semester 2025-2026</div>
+
+    <figure class="photo-placeholder" aria-label="Student photo placeholder">
+        <img id="photo" src="{{photo}}" alt="Student Photo" style="width:120px;height:120px;border-radius:4px;object-fit:cover;">
+    </figure>
+
+    <div class="student-name">{{fullName}}</div>
+
+    <div class="signature-line">Student Signature</div>
+
+    <div class="course">{{course}}</div>
+    </section>
+
+
+        <div class="id-footer">Official University ID Card</div>
+    </main>
+
+    <div class="id-front" aria-hidden="true">
+        <div class="header">
+            <img src="path/to/logo.png" alt="RSU Logo" class="logo">
+            <h1>Romblon State University</h1>
+        </div>
+        
+        <div class="photo-area">
+            <img src="{{photo}}" alt="ID Photo" class="id-photo">
+        </div>
+        
+        <div class="details">
+            <h2>{{fullName}}</h2>
+            <p class="role">{{role}}</p>
+            <p class="dept">{{department}}</p>
+            <p class="idno">{{rfid}}</p>
+        </div>
+    </div>
+        <script>
+            // Update department header from stored selection (saved by registration form)
+            document.addEventListener('DOMContentLoaded', function() {
+                try {
+                    var dept = localStorage.getItem('selectedDepartment');
+                    var header = document.getElementById('departmentHeader');
+                    if (header) {
+                        if (dept && dept.trim() !== '') {
+                            header.textContent = dept;
+                        }
+                        // reflect changes from other tabs/windows
+                        window.addEventListener('storage', function(e) {
+                            if (e.key === 'selectedDepartment') {
+                                header.textContent = e.newValue || 'INSTITUTE OF INFORMATION TECHNOLOGY';
+                            }
+                        });
+                    }
+                } catch (e) {
+                    // localStorage may be unavailable; leave default text
+                }
+            });
+        </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+[07-Nov-2025 22:04:00 UTC] Received data: {"rfid":"1776121796","role":"student","first_name":"John","last_name":"Doe","department":"Computer Science","course_or_position":"BS Computer Science","photo":"","middle_initial":"M","address":"123 Test St","contact_number":"1234567890","birthdate":"2000-01-01","height":"170","weight":"65","gender":"male","civil_status":"single","emergency_contact":"0987654321","emergency_address":"456 Emergency St"}
+[07-Nov-2025 22:04:00 UTC] Connecting to databases...
+[07-Nov-2025 22:04:00 UTC] Both databases connected successfully
+[07-Nov-2025 22:04:00 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:97
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 97
+[07-Nov-2025 22:08:48 UTC] Received data: {"rfid":"1776121796","role":"student","first_name":"John","last_name":"Doe","department":"Computer Science","course_or_position":"BS Computer Science","photo":"","middle_initial":"M","address":"123 Test St","contact_number":"1234567890","birthdate":"2000-01-01","height":"170","weight":"65","gender":"male","civil_status":"single","emergency_contact":"0987654321","emergency_address":"456 Emergency St"}
+[07-Nov-2025 22:08:48 UTC] Connecting to databases...
+[07-Nov-2025 22:08:48 UTC] Both databases connected successfully

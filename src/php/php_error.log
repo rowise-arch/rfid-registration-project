@@ -1,0 +1,48 @@
+[07-Nov-2025 21:10:53 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70
+[07-Nov-2025 21:28:16 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70
+[07-Nov-2025 21:28:16 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70
+[07-Nov-2025 21:28:45 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70
+[07-Nov-2025 21:28:45 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70
+[07-Nov-2025 21:38:57 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70
+[07-Nov-2025 21:41:02 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70
+[07-Nov-2025 21:42:17 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70
+[07-Nov-2025 21:45:45 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70
+[07-Nov-2025 21:50:12 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70
+[07-Nov-2025 21:55:23 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70
+[07-Nov-2025 21:55:55 UTC] PHP Fatal error:  Uncaught Error: mysqli_stmt::bind_param(): Argument #3 could not be passed by reference in C:\wamp64\www\rfid-registration-project\src\php\register_user.php:70
+Stack trace:
+#0 {main}
+  thrown in C:\wamp64\www\rfid-registration-project\src\php\register_user.php on line 70

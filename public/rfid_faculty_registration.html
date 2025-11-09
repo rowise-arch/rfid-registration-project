@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RFID Faculty / Personnel Registration</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <form id="rfidFacultyForm">
+    <h2>Faculty / Personnel RFID Registration</h2>
+
+    <label>RFID ID</label>
+    <input type="text" id="rfid" placeholder="Tap your RFID card here">
+
+    <input type="hidden" id="role" value="faculty">
+
+    <div class="section-title">Profile Photo</div>
+    <div id="camera-container">
+      <button type="button" id="open-camera-btn">Open Camera</button>
+
+      <div id="live-area" style="display:none;">
+        <video id="camera" autoplay playsinline muted></video>
+        <canvas id="snapshot" style="display:none;"></canvas>
+        <button type="button" id="capture-btn">Capture Photo</button>
+      </div>
+
+      <img id="photo-preview" alt="Captured Image" style="display:none; width:100%; margin-top:10px; border-radius:10px;">
+      <button type="button" id="retake-btn" style="display:none; margin-top:8px;">Retake Photo</button>
+    </div>
+
+    <input type="hidden" name="photoData" id="photoData">
+
+    <div class="section-title">Front</div>
+
+    <label>Full Name</label>
+    <div class="row">
+      <input type="text" placeholder="First Name" id="firstName">
+      <input type="text" placeholder="M.I." id="middleInitial">
+      <input type="text" placeholder="Last Name" id="lastName">
+    </div>
+
+    <label>Department</label>
+    <input type="text" placeholder="Department or Office" id="department">
+
+    <label>Position</label>
+    <input type="text" placeholder="Position or Title" id="position">
+
+    <label>Validity</label>
+    <input type="text" placeholder="e.g. 2025-2028" id="validity">
+
+    <div class="section-title">Back</div>
+
+    <label>Address</label>
+    <input type="text" placeholder="Address" id="address">
+
+    <label>Contact Number</label>
+    <input type="text" placeholder="Contact Number" id="contactNumber">
+
+    <label>Birthdate</label>
+    <input type="text" placeholder="Month Date, Year" id="birthdate">
+
+    <div class="row">
+      <input type="text" placeholder="Height" id="height">
+      <input type="text" placeholder="Weight" id="weight">
+    </div>
+
+    <div class="row">
+      <input type="text" placeholder="Gender" id="gender">
+      <input type="text" placeholder="Civil Status (e.g. Single)" id="civilStatus">
+    </div>
+
+    <label>Emergency Contact</label>
+    <input type="text" placeholder="Name of Emergency Contact" id="emergencyContact">
+
+    <label>Address of Emergency Contact</label>
+    <input type="text" placeholder="Address of Emergency Contact" id="emergencyAddress">
+
+    <button type="button" id="preview-btn">Preview ID</button>
+    <button type="submit">Submit</button>
+  </form>
+
+  <div id="previewModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <h3>ID Preview</h3>
+      <div id="idPreviewContainer"></div>
+      <button id="closePreview" class="btn secondary">Close</button>
+    </div>
+  </div>
+
+  <div id="cameraModal" class="modal" aria-hidden="true" style="display:none;">
+    <div class="modal-content" style="max-width:540px; width:92%;">
+      <div style="position:relative;">
+        <video id="modalVideo" autoplay playsinline muted style="width:100%; background:#000; border-radius:8px;"></video>
+        <canvas id="modalSnapshot" style="display:none;"></canvas>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:8px; justify-content:flex-end;">
+        <button id="modalClose" class="btn secondary" type="button">Close</button>
+        <button id="modalCapture" class="btn primary" type="button">Capture</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="cropModal" class="modal" aria-hidden="true" style="display:none;">
+    <div class="modal-content" style="max-width:680px; width:95%;">
+      <canvas id="cropCanvas" style="width:100%; border-radius:8px; background:#000;"></canvas>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+        <button id="cropCancel" type="button">Cancel</button>
+        <button id="cropSubmit" type="button">Save Crop</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../src/js/rfid_faculty_registration.js"></script>
+
+</body>
+</html>

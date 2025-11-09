@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Romblon State University - Faculty ID Back</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .id-card-back {
+      width: var(--card-width);
+      height: var(--card-height);
+      background: linear-gradient(to bottom, var(--primary), var(--secondary));
+      border-radius: var(--radius);
+      box-shadow: var(--card-shadow);
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-content {
+      padding: 25px;
+    }
+
+    .info-section {
+      margin-bottom: 25px;
+    }
+
+    .info-title {
+      font-weight: bold;
+      margin-bottom: 15px;
+      font-size: 16px;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+    }
+
+    .info-item {
+      display: flex;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .info-label {
+      width: 140px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .info-value {
+      flex: 1;
+    }
+
+    .emergency-contact {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin: 25px 0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .emergency-title {
+      font-weight: bold;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 15px;
+      color: var(--accent);
+    }
+
+    .notice {
+      position: absolute;
+      bottom: 15px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 10px;
+      padding: 0 20px;
+      color: var(--text-light);
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body class="flex-center" style="padding: 20px;">
+  <div class="id-card-back">
+    <div class="card-content">
+      <div class="info-section">
+        <div class="info-title">Faculty Information</div>
+        <div class="info-item">
+          <div class="info-label">Address:</div>
+          <div class="info-value">{{address}}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Contact No.:</div>
+          <div class="info-value">{{contactNumber}}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Birthdate:</div>
+          <div class="info-value">{{birthdate}}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Gender:</div>
+          <div class="info-value">{{gender}}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Civil Status:</div>
+          <div class="info-value">{{civilStatus}}</div>
+        </div>
+      </div>
+
+      <div class="emergency-contact">
+        <div class="emergency-title">In case of emergency, please contact:</div>
+        <div class="info-item">
+          <div class="info-label">Name</div>
+          <div class="info-value">{{emergencyContact}}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Address</div>
+          <div class="info-value">{{emergencyAddress}}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice">
+      This ID Card is non-transferable. If found, please return to:<br>
+      The REGISTRAR, ROMBLON STATE UNIVERSITY, Odiongan, Romblon
+    </div>
+  </div>
+</body>
+</html>

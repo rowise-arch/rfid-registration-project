@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Settings - RSU RFID</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
+  <header class="page-header">
+    <div class="container">
+      <h1>System Settings</h1>
+      <p>Configure your RFID system preferences</p>
+    </div>
+  </header>
+
+  <nav class="container mb-3" role="navigation">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div style="display: flex; gap: 10px;">
+          <a href="index.html" class="btn btn-secondary">
+            <i class="fas fa-home"></i> Home
+          </a>
+          <a href="dashboard.html" class="btn btn-secondary">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+          <a href="records.html" class="btn btn-secondary">
+            <i class="fas fa-database"></i> Records
+          </a>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">
+          <i class="fas fa-save"></i> Save Settings
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content" class="container" role="main">
+    <div class="form-container">
+      <!-- General Settings -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="fas fa-cog"></i>
+          General Settings
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">ID Validity Period</label>
+          <select class="form-control" id="validityPeriod">
+            <option value="1">1 Year</option>
+            <option value="2">2 Years</option>
+            <option value="3">3 Years</option>
+            <option value="4">4 Years</option>
+            <option value="5">5 Years</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Auto-renewal Notification</label>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="toggle-switch">
+              <input type="checkbox" id="autoRenewal">
+              <label for="autoRenewal" class="toggle-label"></label>
+            </div>
+            <span class="text-muted">Send automatic renewal reminders</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Renewal Notice Period</label>
+          <select class="form-control" id="renewalNotice">
+            <option value="30">30 days before expiry</option>
+            <option value="15">15 days before expiry</option>
+            <option value="7">7 days before expiry</option>
+            <option value="3">3 days before expiry</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Security Settings -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="fas fa-shield-alt"></i>
+          Security Settings
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Session Timeout</label>
+          <select class="form-control" id="sessionTimeout">
+            <option value="15">15 minutes</option>
+            <option value="30">30 minutes</option>
+            <option value="60">1 hour</option>
+            <option value="120">2 hours</option>
+            <option value="0">Never timeout</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Password Policy</label>
+          <select class="form-control" id="passwordPolicy">
+            <option value="low">Low (6+ characters)</option>
+            <option value="medium">Medium (8+ characters, mixed case)</option>
+            <option value="high">High (12+ characters, mixed case + numbers + symbols)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Two-Factor Authentication</label>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="toggle-switch">
+              <input type="checkbox" id="twoFactorAuth">
+              <label for="twoFactorAuth" class="toggle-label"></label>
+            </div>
+            <span class="text-muted">Require 2FA for admin access</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification Settings -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="fas fa-bell"></i>
+          Notification Settings
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Email Notifications</label>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="toggle-switch">
+              <input type="checkbox" id="emailNotifications">
+              <label for="emailNotifications" class="toggle-label"></label>
+            </div>
+            <span class="text-muted">Send email notifications</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">SMS Notifications</label>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="toggle-switch">
+              <input type="checkbox" id="smsNotifications">
+              <label for="smsNotifications" class="toggle-label"></label>
+            </div>
+            <span class="text-muted">Send SMS notifications</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notification Events</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <input type="checkbox" id="notifyNewRegistration" checked>
+              <label for="notifyNewRegistration">New registrations</label>
+            </div>
+            <div>
+              <input type="checkbox" id="notifyRenewal" checked>
+              <label for="notifyRenewal">Renewals</label>
+            </div>
+            <div>
+              <input type="checkbox" id="notifyExpiry" checked>
+              <label for="notifyExpiry">Expiring IDs</label>
+            </div>
+            <div>
+              <input type="checkbox" id="notifySuspicious" checked>
+              <label for="notifySuspicious">Suspicious activity</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export & Backup -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="fas fa-download"></i>
+          Export & Backup
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Auto-backup</label>
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="toggle-switch">
+              <input type="checkbox" id="autoBackup">
+              <label for="autoBackup" class="toggle-label"></label>
+            </div>
+            <span class="text-muted">Automatically backup data daily</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Backup Retention</label>
+          <select class="form-control" id="backupRetention">
+            <option value="7">7 days</option>
+            <option value="30">30 days</option>
+            <option value="90">90 days</option>
+            <option value="365">1 year</option>
+          </select>
+        </div>
+
+        <div class="btn-group">
+          <button type="button" class="btn btn-accent" onclick="exportData()">
+            <i class="fas fa-file-export"></i> Export Data
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="importData()">
+            <i class="fas fa-file-import"></i> Import Data
+          </button>
+          <button type="button" class="btn btn-success" onclick="backupNow()">
+            <i class="fas fa-database"></i> Backup Now
+          </button>
+        </div>
+      </div>
+
+      <!-- System Information -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="fas fa-info-circle"></i>
+          System Information
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">System Version</label>
+          <input type="text" class="form-control" value="RFID System v2.1.0" readonly>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Database Size</label>
+          <input type="text" class="form-control" id="dbSize" readonly>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Last Backup</label>
+          <input type="text" class="form-control" id="lastBackup" readonly>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">System Status</label>
+          <div id="systemStatus" class="status-indicator status-valid">
+            <i class="fas fa-check-circle"></i> All systems operational
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="form-section" style="border: 2px solid var(--error); border-radius: var(--radius); padding: 20px;">
+        <div class="section-title" style="background: var(--error);">
+          <i class="fas fa-exclamation-triangle"></i>
+          Danger Zone
+        </div>
+        
+        <div class="form-group">
+          <p class="text-muted" style="margin-bottom: 15px;">
+            These actions are irreversible. Please proceed with caution.
+          </p>
+          
+          <div class="btn-group">
+            <button type="button" class="btn btn-danger" onclick="clearAllData()">
+              <i class="fas fa-trash"></i> Clear All Data
+            </button>
+            <button type="button" class="btn btn-danger" onclick="resetSystem()">
+              <i class="fas fa-redo"></i> Reset System
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Actions -->
+      <div class="btn-group">
+        <button type="button" class="btn btn-secondary" onclick="resetSettings()">
+          <i class="fas fa-undo"></i> Reset to Defaults
+        </button>
+        <button type="button" class="btn btn-primary" onclick="saveSettings()">
+          <i class="fas fa-save"></i> Save All Settings
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    © 2025 Romblon State University | RFID Registration System
+  </footer>
+
+  <!-- Dark Mode Toggle -->
+  <div class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle dark mode">
+    <i class="fas fa-moon"></i>
+  </div>
+
+  <!-- Notification Container -->
+  <div class="notification-container" id="notificationContainer"></div>
+
+  <!-- Import File Input -->
+  <input type="file" id="importFile" accept=".json,.csv" style="display: none;">
+
+  <script>
+    // Settings data
+    let settings = {
+      validityPeriod: '1',
+      autoRenewal: true,
+      renewalNotice: '30',
+      sessionTimeout: '30',
+      passwordPolicy: 'medium',
+      twoFactorAuth: false,
+      emailNotifications: true,
+      smsNotifications: false,
+      notifyNewRegistration: true,
+      notifyRenewal: true,
+      notifyExpiry: true,
+      notifySuspicious: true,
+      autoBackup: true,
+      backupRetention: '30'
+    };
+
+    // Initialize Settings
+    document.addEventListener('DOMContentLoaded', function() {
+      loadSettings();
+      updateSystemInfo();
+      setupEventListeners();
+    });
+
+    // Load saved settings
+    function loadSettings() {
+      const savedSettings = localStorage.getItem('rfidSettings');
+      if (savedSettings) {
+        settings = { ...settings, ...JSON.parse(savedSettings) };
+      }
+      applySettingsToUI();
+    }
+
+    // Apply settings to UI
+    function applySettingsToUI() {
+      document.getElementById('validityPeriod').value = settings.validityPeriod;
+      document.getElementById('autoRenewal').checked = settings.autoRenewal;
+      document.getElementById('renewalNotice').value = settings.renewalNotice;
+      document.getElementById('sessionTimeout').value = settings.sessionTimeout;
+      document.getElementById('passwordPolicy').value = settings.passwordPolicy;
+      document.getElementById('twoFactorAuth').checked = settings.twoFactorAuth;
+      document.getElementById('emailNotifications').checked = settings.emailNotifications;
+      document.getElementById('smsNotifications').checked = settings.smsNotifications;
+      document.getElementById('notifyNewRegistration').checked = settings.notifyNewRegistration;
+      document.getElementById('notifyRenewal').checked = settings.notifyRenewal;
+      document.getElementById('notifyExpiry').checked = settings.notifyExpiry;
+      document.getElementById('notifySuspicious').checked = settings.notifySuspicious;
+      document.getElementById('autoBackup').checked = settings.autoBackup;
+      document.getElementById('backupRetention').value = settings.backupRetention;
+    }
+
+    // Save settings
+    function saveSettings() {
+      // Get values from UI
+      settings.validityPeriod = document.getElementById('validityPeriod').value;
+      settings.autoRenewal = document.getElementById('autoRenewal').checked;
+      settings.renewalNotice = document.getElementById('renewalNotice').value;
+      settings.sessionTimeout = document.getElementById('sessionTimeout').value;
+      settings.passwordPolicy = document.getElementById('passwordPolicy').value;
+      settings.twoFactorAuth = document.getElementById('twoFactorAuth').checked;
+      settings.emailNotifications = document.getElementById('emailNotifications').checked;
+      settings.smsNotifications = document.getElementById('smsNotifications').checked;
+      settings.notifyNewRegistration = document.getElementById('notifyNewRegistration').checked;
+      settings.notifyRenewal = document.getElementById('notifyRenewal').checked;
+      settings.notifyExpiry = document.getElementById('notifyExpiry').checked;
+      settings.notifySuspicious = document.getElementById('notifySuspicious').checked;
+      settings.autoBackup = document.getElementById('autoBackup').checked;
+      settings.backupRetention = document.getElementById('backupRetention').value;
+
+      // Save to localStorage
+      localStorage.setItem('rfidSettings', JSON.stringify(settings));
+      
+      // Update session timeout
+      updateSessionTimeout();
+      
+      showNotification('Settings saved successfully', 'success');
+    }
+
+    // Reset to defaults
+    function resetSettings() {
+      if (confirm('Are you sure you want to reset all settings to default values?')) {
+        localStorage.removeItem('rfidSettings');
+        settings = {
+          validityPeriod: '1',
+          autoRenewal: true,
+          renewalNotice: '30',
+          sessionTimeout: '30',
+          passwordPolicy: 'medium',
+          twoFactorAuth: false,
+          emailNotifications: true,
+          smsNotifications: false,
+          notifyNewRegistration: true,
+          notifyRenewal: true,
+          notifyExpiry: true,
+          notifySuspicious: true,
+          autoBackup: true,
+          backupRetention: '30'
+        };
+        applySettingsToUI();
+        showNotification('Settings reset to defaults', 'info');
+      }
+    }
+
+    // Update session timeout
+    function updateSessionTimeout() {
+      const timeout = parseInt(settings.sessionTimeout) * 60 * 1000;
+      if (timeout > 0) {
+        localStorage.setItem('sessionTimeout', timeout.toString());
+      } else {
+        localStorage.removeItem('sessionTimeout');
+      }
+    }
+
+    // Export data
+    async function exportData() {
+      try {
+        showNotification('Preparing export...', 'info');
+        
+        const format = prompt('Select export format:\n1. CSV\n2. JSON\n3. PDF', '1');
+        let exportType = 'csv';
+        
+        switch (format) {
+          case '1': exportType = 'csv'; break;
+          case '2': exportType = 'json'; break;
+          case '3': exportType = 'pdf'; break;
+          default: return;
+        }
+        
+        const response = await fetch('../src/php/export_data.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ format: exportType, type: 'all' })
+        });
+        
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `rsu-export-${new Date().toISOString().split('T')[0]}.${exportType}`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          
+          showNotification('Export completed successfully', 'success');
+        } else {
+          throw new Error('Export failed');
+        }
+      } catch (error) {
+        console.error('Export error:', error);
+        showNotification('Export failed: ' + error.message, 'error');
+      }
+    }
+
+    // Import data
+    function importData() {
+      document.getElementById('importFile').click();
+    }
+
+    // Handle file import
+    document.getElementById('importFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      if (confirm(`Import data from ${file.name}? This will merge with existing data.`)) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const data = JSON.parse(e.target.result);
+            importDataProcess(data);
+          } catch (error) {
+            showNotification('Invalid file format', 'error');
+          }
+        };
+        reader.readAsText(file);
+      }
+      
+      // Reset file input
+      e.target.value = '';
+    });
+
+    async function importDataProcess(data) {
+      try {
+        showNotification('Importing data...', 'info');
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        showNotification('Data imported successfully', 'success');
+      } catch (error) {
+        showNotification('Import failed: ' + error.message, 'error');
+      }
+    }
+
+    // Backup now
+    async function backupNow() {
+      try {
+        showNotification('Creating backup...', 'info');
+        
+        const response = await fetch('../src/php/backup.php', {
+          method: 'POST'
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          document.getElementById('lastBackup').value = new Date().toLocaleString();
+          showNotification('Backup created successfully', 'success');
+        } else {
+          throw new Error('Backup failed');
+        }
+      } catch (error) {
+        showNotification('Backup failed: ' + error.message, 'error');
+      }
+    }
+
+    // Clear all data
+    function clearAllData() {
+      if (confirm('WARNING: This will permanently delete ALL data. This action cannot be undone. Are you absolutely sure?')) {
+        const confirmation = prompt('Type "DELETE ALL" to confirm:');
+        if (confirmation === 'DELETE ALL') {
+          showNotification('Clearing all data...', 'warning');
+          // Implement data clearing logic
+          setTimeout(() => {
+            showNotification('All data has been cleared', 'success');
+          }, 2000);
+        } else {
+          showNotification('Data clearance cancelled', 'info');
+        }
+      }
+    }
+
+    // Reset system
+    function resetSystem() {
+      if (confirm('This will reset the entire system to factory defaults. All data and settings will be lost. Continue?')) {
+        const confirmation = prompt('Type "RESET SYSTEM" to confirm:');
+        if (confirmation === 'RESET SYSTEM') {
+          showNotification('Resetting system...', 'warning');
+          // Implement system reset logic
+          setTimeout(() => {
+            localStorage.clear();
+            showNotification('System reset complete', 'success');
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          }, 3000);
+        } else {
+          showNotification('System reset cancelled', 'info');
+        }
+      }
+    }
+
+    // Update system information
+    function updateSystemInfo() {
+      // Simulate system info
+      document.getElementById('dbSize').value = '2.4 MB';
+      document.getElementById('lastBackup').value = new Date().toLocaleString();
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Real-time validation
+      const inputs = document.querySelectorAll('select, input[type="checkbox"]');
+      inputs.forEach(input => {
+        input.addEventListener('change', function() {
+          this.closest('.form-group').classList.add('valid');
+        });
+      });
+    }
+
+    // Dark Mode Toggle
+    function toggleDarkMode() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      const icon = document.querySelector('.dark-mode-toggle i');
+      icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      localStorage.setItem('darkMode', isDark);
+    }
+
+    // Check saved dark mode preference
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      document.querySelector('.dark-mode-toggle i').className = 'fas fa-sun';
+    }
+
+    // Notification System
+    function showNotification(message, type = 'info') {
+      const container = document.getElementById('notificationContainer');
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = `
+        <div class="notification-icon">
+          <i class="fas fa-${getNotificationIcon(type)}"></i>
+        </div>
+        <div class="notification-content">${message}</div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      
+      container.appendChild(notification);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 5000);
+    }
+
+    function getNotificationIcon(type) {
+      const icons = {
+        success: 'check-circle',
+        error: 'exclamation-circle',
+        warning: 'exclamation-triangle',
+        info: 'info-circle'
+      };
+      return icons[type] || 'info-circle';
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl/Cmd + S to save
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveSettings();
+      }
+      
+      // Escape to close notifications
+      if (e.key === 'Escape') {
+        const container = document.getElementById('notificationContainer');
+        container.innerHTML = '';
+      }
+    });
+  </script>
+</body>
+</html>

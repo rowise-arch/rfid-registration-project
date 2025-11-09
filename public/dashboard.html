@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - RSU RFID System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
+  <header class="page-header">
+    <div class="container">
+      <h1>RFID System Dashboard</h1>
+      <p>Real-time analytics and system overview</p>
+    </div>
+  </header>
+
+  <nav class="container mb-3" role="navigation">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div style="display: flex; gap: 10px;">
+          <a href="index.html" class="btn btn-secondary">
+            <i class="fas fa-home"></i> Home
+          </a>
+          <a href="records.html" class="btn btn-secondary">
+            <i class="fas fa-database"></i> Records
+          </a>
+          <a href="rfid_monitor.html" class="btn btn-secondary">
+            <i class="fas fa-rss"></i> Monitor
+          </a>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <a href="settings.html" class="btn btn-secondary">
+            <i class="fas fa-cog"></i> Settings
+          </a>
+          <button class="btn btn-danger" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content" class="container" role="main">
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <h3 id="totalUsers">0</h3>
+          <p>Total Registered</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-user-graduate"></i>
+        </div>
+        <div class="stat-content">
+          <h3 id="totalStudents">0</h3>
+          <p>Students</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-chalkboard-teacher"></i>
+        </div>
+        <div class="stat-content">
+          <h3 id="totalFaculty">0</h3>
+          <p>Faculty</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-user-tie"></i>
+        </div>
+        <div class="stat-content">
+          <h3 id="totalEmployees">0</h3>
+          <p>Employees</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-id-card"></i>
+        </div>
+        <div class="stat-content">
+          <h3 id="activeToday">0</h3>
+          <p>Active Today</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-content">
+          <h3 id="expiringSoon">0</h3>
+          <p>Expiring Soon</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="chart-section">
+      <div class="form-row">
+        <div class="chart-container" style="flex: 2;">
+          <h3>Registration Trends</h3>
+          <canvas id="registrationChart"></canvas>
+        </div>
+        <div class="chart-container" style="flex: 1;">
+          <h3>User Distribution</h3>
+          <canvas id="userDistributionChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="chart-container">
+          <h3>Daily Activity</h3>
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card">
+      <h3 style="margin-bottom: 20px; color: var(--primary);">
+        <i class="fas fa-history"></i> Recent Activity
+      </h3>
+      <div id="recentActivity">
+        <div class="loading-spinner"></div> Loading recent activity...
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+      <h3 style="margin-bottom: 20px; color: var(--primary);">
+        <i class="fas fa-bolt"></i> Quick Actions
+      </h3>
+      <div class="btn-group">
+        <button class="btn btn-accent" onclick="window.location.href='rfid_registration.html'">
+          <i class="fas fa-user-plus"></i> Register New User
+        </button>
+        <button class="btn btn-primary" onclick="window.location.href='records.html'">
+          <i class="fas fa-list"></i> View All Records
+        </button>
+        <button class="btn btn-success" onclick="exportDashboardData()">
+          <i class="fas fa-download"></i> Export Report
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    © 2025 Romblon State University | RFID Registration System
+  </footer>
+
+  <!-- Dark Mode Toggle -->
+  <div class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle dark mode">
+    <i class="fas fa-moon"></i>
+  </div>
+
+  <!-- Notification Container -->
+  <div class="notification-container" id="notificationContainer"></div>
+
+  <script>
+    // Dashboard Data
+    let dashboardData = {
+      totalUsers: 0,
+      totalStudents: 0,
+      totalFaculty: 0,
+      totalEmployees: 0,
+      activeToday: 0,
+      expiringSoon: 0,
+      registrationTrends: [],
+      userDistribution: {},
+      dailyActivity: []
+    };
+
+    // Initialize Dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      loadDashboardData();
+      initCharts();
+      startRealTimeUpdates();
+      checkSession();
+      showTutorial();
+    });
+
+    // Load Dashboard Data
+    async function loadDashboardData() {
+      try {
+        showLoadingState();
+        
+        // Simulate API call
+        const response = await fetch('../src/php/get_dashboard_data.php');
+        const data = await response.json();
+        
+        if (data.success) {
+          dashboardData = data.data;
+          updateDashboardUI();
+          updateCharts();
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+        showNotification('Error loading dashboard data', 'error');
+      }
+    }
+
+    // Update UI with data
+    function updateDashboardUI() {
+      document.getElementById('totalUsers').textContent = dashboardData.totalUsers.toLocaleString();
+      document.getElementById('totalStudents').textContent = dashboardData.totalStudents.toLocaleString();
+      document.getElementById('totalFaculty').textContent = dashboardData.totalFaculty.toLocaleString();
+      document.getElementById('totalEmployees').textContent = dashboardData.totalEmployees.toLocaleString();
+      document.getElementById('activeToday').textContent = dashboardData.activeToday.toLocaleString();
+      document.getElementById('expiringSoon').textContent = dashboardData.expiringSoon.toLocaleString();
+      
+      updateRecentActivity();
+    }
+
+    // Initialize Charts
+    function initCharts() {
+      // Registration Trends Chart
+      const regCtx = document.getElementById('registrationChart').getContext('2d');
+      window.registrationChart = new Chart(regCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Registrations',
+            data: [],
+            borderColor: '#003366',
+            backgroundColor: 'rgba(0, 51, 102, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            }
+          }
+        }
+      });
+
+      // User Distribution Chart
+      const distCtx = document.getElementById('userDistributionChart').getContext('2d');
+      window.userDistributionChart = new Chart(distCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Students', 'Faculty', 'Employees'],
+          datasets: [{
+            data: [0, 0, 0],
+            backgroundColor: [
+              '#003366',
+              '#ffcc00',
+              '#16a34a'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+            }
+          }
+        }
+      });
+
+      // Activity Chart
+      const activityCtx = document.getElementById('activityChart').getContext('2d');
+      window.activityChart = new Chart(activityCtx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Scans',
+            data: [],
+            backgroundColor: '#004080'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            }
+          }
+        }
+      });
+    }
+
+    // Update Charts with Data
+    function updateCharts() {
+      // Registration Trends
+      window.registrationChart.data.labels = dashboardData.registrationTrends.map(item => item.month);
+      window.registrationChart.data.datasets[0].data = dashboardData.registrationTrends.map(item => item.count);
+      window.registrationChart.update();
+
+      // User Distribution
+      window.userDistributionChart.data.datasets[0].data = [
+        dashboardData.totalStudents,
+        dashboardData.totalFaculty,
+        dashboardData.totalEmployees
+      ];
+      window.userDistributionChart.update();
+
+      // Daily Activity
+      window.activityChart.data.labels = dashboardData.dailyActivity.map(item => item.date);
+      window.activityChart.data.datasets[0].data = dashboardData.dailyActivity.map(item => item.scans);
+      window.activityChart.update();
+    }
+
+    // Real-time Updates
+    function startRealTimeUpdates() {
+      // Simulate WebSocket connection
+      setInterval(() => {
+        updateLiveData();
+      }, 30000); // Update every 30 seconds
+    }
+
+    async function updateLiveData() {
+      try {
+        const response = await fetch('../src/php/get_live_data.php');
+        const data = await response.json();
+        
+        if (data.success) {
+          // Update only the changing data
+          document.getElementById('activeToday').textContent = data.activeToday.toLocaleString();
+          document.getElementById('expiringSoon').textContent = data.expiringSoon.toLocaleString();
+          
+          showNotification('Dashboard updated', 'info');
+        }
+      } catch (error) {
+        console.error('Error updating live data:', error);
+      }
+    }
+
+    // Recent Activity
+    function updateRecentActivity() {
+      const activityContainer = document.getElementById('recentActivity');
+      const activities = [
+        { action: 'New registration', user: 'Juan Dela Cruz', time: '2 minutes ago', type: 'success' },
+        { action: 'RFID scanned', user: 'Maria Santos', time: '5 minutes ago', type: 'info' },
+        { action: 'ID renewed', user: 'Dr. Robert Lim', time: '1 hour ago', type: 'warning' },
+        { action: 'Profile updated', user: 'Ana Reyes', time: '2 hours ago', type: 'info' }
+      ];
+
+      activityContainer.innerHTML = activities.map(activity => `
+        <div class="activity-item" style="display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid var(--gray-border);">
+          <div class="activity-icon ${activity.type}" style="width: 8px; height: 8px; border-radius: 50%; background: var(--${activity.type});"></div>
+          <div style="flex: 1;">
+            <strong>${activity.action}</strong> - ${activity.user}
+          </div>
+          <div class="text-muted" style="font-size: 0.9rem;">${activity.time}</div>
+        </div>
+      `).join('');
+    }
+
+    // Export Functionality
+    async function exportDashboardData() {
+      try {
+        showNotification('Preparing export...', 'info');
+        
+        const response = await fetch('../src/php/export_dashboard.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ format: 'pdf' })
+        });
+        
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `rsu-dashboard-${new Date().toISOString().split('T')[0]}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          
+          showNotification('Export completed successfully', 'success');
+        } else {
+          throw new Error('Export failed');
+        }
+      } catch (error) {
+        console.error('Export error:', error);
+        showNotification('Export failed', 'error');
+      }
+    }
+
+    // Loading State
+    function showLoadingState() {
+      const elements = ['totalUsers', 'totalStudents', 'totalFaculty', 'totalEmployees', 'activeToday', 'expiringSoon'];
+      elements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.innerHTML = '<div class="loading-spinner" style="display: inline-block;"></div>';
+        }
+      });
+    }
+
+    // Session Management
+    function checkSession() {
+      const lastActivity = localStorage.getItem('lastActivity');
+      const now = Date.now();
+      
+      if (lastActivity && (now - lastActivity > 30 * 60 * 1000)) {
+        logout();
+      }
+    }
+
+    function updateActivity() {
+      localStorage.setItem('lastActivity', Date.now());
+    }
+
+    // Update activity on user interaction
+    document.addEventListener('click', updateActivity);
+    document.addEventListener('keypress', updateActivity);
+
+    // Logout
+    function logout() {
+      localStorage.removeItem('adminSession');
+      localStorage.removeItem('lastActivity');
+      window.location.href = 'index.html';
+    }
+
+    // Tutorial/Onboarding
+    function showTutorial() {
+      if (!localStorage.getItem('dashboardTutorialCompleted')) {
+        setTimeout(() => {
+          if (confirm('Welcome to the Dashboard! Would you like a quick tour?')) {
+            startDashboardTour();
+          }
+          localStorage.setItem('dashboardTutorialCompleted', 'true');
+        }, 1000);
+      }
+    }
+
+    function startDashboardTour() {
+      const tourSteps = [
+        {
+          element: '.stats-grid',
+          title: 'Overview Stats',
+          content: 'Here you can see key metrics about your RFID system at a glance.'
+        },
+        {
+          element: '#registrationChart',
+          title: 'Registration Trends',
+          content: 'This chart shows the registration patterns over time.'
+        },
+        {
+          element: '#recentActivity',
+          title: 'Recent Activity',
+          content: 'Monitor recent system activities and user actions here.'
+        }
+      ];
+      
+      // Simple tour implementation
+      tourSteps.forEach((step, index) => {
+        setTimeout(() => {
+          showNotification(step.content, 'info');
+        }, (index + 1) * 3000);
+      });
+    }
+
+    // Dark Mode Toggle
+    function toggleDarkMode() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      const icon = document.querySelector('.dark-mode-toggle i');
+      icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      localStorage.setItem('darkMode', isDark);
+    }
+
+    // Check saved dark mode preference
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      document.querySelector('.dark-mode-toggle i').className = 'fas fa-sun';
+    }
+
+    // Notification System
+    function showNotification(message, type = 'info') {
+      const container = document.getElementById('notificationContainer');
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = `
+        <div class="notification-icon">
+          <i class="fas fa-${getNotificationIcon(type)}"></i>
+        </div>
+        <div class="notification-content">${message}</div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      
+      container.appendChild(notification);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 5000);
+    }
+
+    function getNotificationIcon(type) {
+      const icons = {
+        success: 'check-circle',
+        error: 'exclamation-circle',
+        warning: 'exclamation-triangle',
+        info: 'info-circle'
+      };
+      return icons[type] || 'info-circle';
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl/Cmd + K for search (would navigate to records search)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        window.location.href = 'records.html';
+      }
+      
+      // Ctrl/Cmd + N for new registration
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        window.location.href = 'rfid_registration.html';
+      }
+      
+      // Escape to close modals (if any)
+      if (e.key === 'Escape') {
+        // Close any open modals
+        document.querySelectorAll('.modal.active').forEach(modal => {
+          modal.classList.remove('active');
+        });
+      }
+    });
+
+    // Simulate data for demo purposes
+    setTimeout(() => {
+      if (dashboardData.totalUsers === 0) {
+        // Demo data
+        dashboardData = {
+          totalUsers: 1247,
+          totalStudents: 985,
+          totalFaculty: 187,
+          totalEmployees: 75,
+          activeToday: 342,
+          expiringSoon: 23,
+          registrationTrends: [
+            { month: 'Jan', count: 45 },
+            { month: 'Feb', count: 78 },
+            { month: 'Mar', count: 112 },
+            { month: 'Apr', count: 95 },
+            { month: 'May', count: 134 },
+            { month: 'Jun', count: 156 }
+          ],
+          userDistribution: {
+            students: 985,
+            faculty: 187,
+            employees: 75
+          },
+          dailyActivity: [
+            { date: 'Mon', scans: 234 },
+            { date: 'Tue', scans: 189 },
+            { date: 'Wed', scans: 267 },
+            { date: 'Thu', scans: 198 },
+            { date: 'Fri', scans: 176 },
+            { date: 'Sat', scans: 45 },
+            { date: 'Sun', scans: 23 }
+          ]
+        };
+        updateDashboardUI();
+        updateCharts();
+      }
+    }, 2000);
+  </script>
+</body>
+</html>
